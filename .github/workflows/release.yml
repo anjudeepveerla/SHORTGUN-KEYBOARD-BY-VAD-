@@ -1,0 +1,79 @@
+name: Build and release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mac-arm64:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Apple Silicon DMG
+        run: ./build-dmg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-arm64
+          path: dist/ShotgunKeyboard-macOS-arm64.dmg
+
+  mac-intel:
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Intel DMG
+        run: ./build-dmg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-intel
+          path: dist/ShotgunKeyboard-macOS-x86_64.dmg
+
+  windows-x64:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate sounds
+        run: python generate_sound.py
+      - name: Build portable Windows EXE
+        run: dotnet publish windows/ShotgunKeyboard.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o windows/bin/publish
+      - name: Verify bundled sounds
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath "windows/bin/publish/ShotgunKeyboard.exe" -ArgumentList "--self-test" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Windows self-test failed with exit code $($process.ExitCode)" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: windows/bin/publish/ShotgunKeyboard.exe
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [mac-arm64, mac-intel, windows-x64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Name Windows asset
+        run: mv dist/ShotgunKeyboard.exe dist/ShotgunKeyboard-Windows-x64.exe
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* --title "ShotgunKeyboard $GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md
+          fi

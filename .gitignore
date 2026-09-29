@@ -1,0 +1,11 @@
+.DS_Store
+.tools/
+dist/
+*.app/
+*.dmg
+shotgun.wav
+sounds/
+generated-sounds/
+windows/bin/
+windows/obj/
+*.user

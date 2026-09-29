@@ -42,12 +42,24 @@ private final class AudioPool {
 
 private final class ShotgunKeyboardApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private let bundledSounds: [(id: String, title: String, file: String)] = [
+        ("gunshotjbudden", "Gunshot J Budden", "gunshotjbudden.mp3"),
         ("shotgun", "Shotgun", "shotgun.wav"),
         ("boing", "Cartoon Boing", "boing.wav"),
         ("beep", "Censor Beep", "beep.wav"),
         ("fart", "Dry Fart", "fart.wav"),
         ("pew", "Pew Pew", "pew.wav"),
-        ("quack", "Quack", "quack.wav")
+        ("quack", "Quack", "quack.wav"),
+        ("applepay", "Apple Pay", "applepay.mp3"),
+        ("movie_1", "Movie 1", "movie_1.mp3"),
+        ("rizz-sound-effect", "Rizz Sound Effect", "rizz-sound-effect.mp3"),
+        ("wrong-answer-sound-effect", "Wrong Answer", "wrong-answer-sound-effect.mp3"),
+        ("yes-lara-voice", "Yes Lara Voice", "yes-lara-voice.mp3"),
+        ("shocked-sound-effect", "Shocked", "shocked-sound-effect.mp3"),
+        ("punch_u4LmMsr", "Punch", "punch_u4LmMsr.mp3"),
+        ("maro-jump-sound-effect_1", "Maro Jump", "maro-jump-sound-effect_1.mp3"),
+        ("ding-sound-effect_2", "Ding", "ding-sound-effect_2.mp3"),
+        ("anime-ahh", "Anime Ahh", "anime-ahh.mp3"),
+        ("67_SQlv2Xv", "67", "67_SQlv2Xv.mp3")
     ]
 
     private var customSounds: [CustomSound] = []
@@ -155,15 +167,15 @@ private final class ShotgunKeyboardApp: NSObject, NSApplicationDelegate, NSWindo
     }
 
     private func restoreSelection() {
-        let saved = UserDefaults.standard.stringArray(forKey: "selectedSoundIDs") ?? ["shotgun"]
+        let saved = UserDefaults.standard.stringArray(forKey: "selectedSoundIDs") ?? ["gunshotjbudden"]
         selectedSoundIDs = []
         let choices = multipleSoundsEnabled ? saved : Array(saved.reversed())
         for id in choices where !selectedSoundIDs.contains(id) {
             if prepareSound(id) { selectedSoundIDs.append(id) }
             if !multipleSoundsEnabled && !selectedSoundIDs.isEmpty { break }
         }
-        if selectedSoundIDs.isEmpty, prepareSound("shotgun") {
-            selectedSoundIDs = ["shotgun"]
+        if selectedSoundIDs.isEmpty, prepareSound("gunshotjbudden") {
+            selectedSoundIDs = ["gunshotjbudden"]
         }
         saveSelection()
     }
@@ -508,7 +520,7 @@ private final class ShotgunKeyboardApp: NSObject, NSApplicationDelegate, NSWindo
         customSounds.removeAll { $0.id == id }
         selectedSoundIDs.removeAll { $0 == id }
         pools.removeValue(forKey: id)
-        if selectedSoundIDs.isEmpty, prepareSound("shotgun") { selectedSoundIDs = ["shotgun"] }
+        if selectedSoundIDs.isEmpty, prepareSound("gunshotjbudden") { selectedSoundIDs = ["gunshotjbudden"] }
         saveCustomSounds()
         saveSelection()
         rebuildSoundRows()

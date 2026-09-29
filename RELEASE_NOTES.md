@@ -1,6 +1,8 @@
-# ShotgunKeyboard 2.1
+# ShotgunKeyboard 2.2
 
-A small desktop app for macOS and Windows that plays original synthesized effects as you type.
+This release bundles 12 more sound effects on macOS and Windows. Gunshot J Budden is the default sound on a fresh install. Existing sound selections are preserved when updating. The six generated effects and custom sound import remain available.
+
+The source code remains MIT licensed. The contributed MP3s have separate rights; see SOUND_ASSETS.md in the repository.
 
 - Select one sound, or enable Multiple sounds to randomize across checked effects.
 - Import your own audio files.

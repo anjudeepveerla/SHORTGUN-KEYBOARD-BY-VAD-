@@ -42,22 +42,48 @@ internal static class Program
 
 internal static class BundledSounds
 {
-    public static readonly string[] Ids = ["shotgun", "boing", "beep", "fart", "pew", "quack"];
+    public static readonly (string Id, string Title, string Filename)[] Entries =
+    [
+        ("gunshotjbudden", "Gunshot J Budden", "gunshotjbudden.mp3"),
+        ("shotgun", "Shotgun", "shotgun.wav"),
+        ("boing", "Cartoon Boing", "boing.wav"),
+        ("beep", "Censor Beep", "beep.wav"),
+        ("fart", "Dry Fart", "fart.wav"),
+        ("pew", "Pew Pew", "pew.wav"),
+        ("quack", "Quack", "quack.wav"),
+        ("applepay", "Apple Pay", "applepay.mp3"),
+        ("movie_1", "Movie 1", "movie_1.mp3"),
+        ("rizz-sound-effect", "Rizz Sound Effect", "rizz-sound-effect.mp3"),
+        ("wrong-answer-sound-effect", "Wrong Answer", "wrong-answer-sound-effect.mp3"),
+        ("yes-lara-voice", "Yes Lara Voice", "yes-lara-voice.mp3"),
+        ("shocked-sound-effect", "Shocked", "shocked-sound-effect.mp3"),
+        ("punch_u4LmMsr", "Punch", "punch_u4LmMsr.mp3"),
+        ("maro-jump-sound-effect_1", "Maro Jump", "maro-jump-sound-effect_1.mp3"),
+        ("ding-sound-effect_2", "Ding", "ding-sound-effect_2.mp3"),
+        ("anime-ahh", "Anime Ahh", "anime-ahh.mp3"),
+        ("67_SQlv2Xv", "67", "67_SQlv2Xv.mp3")
+    ];
+    public static IEnumerable<string> Ids => Entries.Select(entry => entry.Id);
     private static readonly string DirectoryPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "ShotgunKeyboard", "Bundled");
 
-    public static string PathFor(string id) => Path.Combine(DirectoryPath, id + ".wav");
+    public static string PathFor(string id)
+    {
+        var entry = Entries.FirstOrDefault(entry => entry.Id == id);
+        if (entry == default) throw new ArgumentException($"Unknown bundled sound: {id}");
+        return Path.Combine(DirectoryPath, entry.Filename);
+    }
 
     public static void Extract()
     {
         Directory.CreateDirectory(DirectoryPath);
         var assembly = Assembly.GetExecutingAssembly();
-        foreach (var id in Ids)
+        foreach (var entry in Entries)
         {
-            using var resource = assembly.GetManifestResourceStream($"ShotgunKeyboard.Sounds.{id}.wav")
-                ?? throw new FileNotFoundException($"Missing bundled sound: {id}");
-            var path = PathFor(id);
+            using var resource = assembly.GetManifestResourceStream($"ShotgunKeyboard.Sounds.{entry.Filename}")
+                ?? throw new FileNotFoundException($"Missing bundled sound: {entry.Filename}");
+            var path = PathFor(entry.Id);
             if (File.Exists(path) && new FileInfo(path).Length == resource.Length) continue;
             using var file = File.Create(path);
             resource.CopyTo(file);
@@ -70,7 +96,7 @@ internal sealed class SoundSettings
     public bool Armed { get; set; } = true;
     public bool MultipleSounds { get; set; }
     public float Volume { get; set; } = 0.55f;
-    public List<string> SelectedSoundIds { get; set; } = ["shotgun"];
+    public List<string> SelectedSoundIds { get; set; } = ["gunshotjbudden"];
     public List<CustomSound> CustomSounds { get; set; } = [];
 }
 
@@ -353,11 +379,7 @@ internal sealed class MainForm : Form
     private void RefreshSoundList()
     {
         sounds.Clear();
-        foreach (var (id, title) in new[]
-        {
-            ("shotgun", "Shotgun"), ("boing", "Cartoon Boing"), ("beep", "Censor Beep"),
-            ("fart", "Dry Fart"), ("pew", "Pew Pew"), ("quack", "Quack")
-        })
+        foreach (var (id, title, _) in BundledSounds.Entries)
         {
             var path = BundledSounds.PathFor(id);
             if (File.Exists(path)) sounds.Add(new SoundEntry(id, title, path));

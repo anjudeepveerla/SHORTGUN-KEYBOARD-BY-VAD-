@@ -25,6 +25,7 @@ swiftc -O -target "$(uname -m)-apple-macosx12.0" \
 
 cp Info.plist "$bundle/Contents/Info.plist"
 cp generated-sounds/*.wav "$bundle/Contents/Resources/"
+cp bundled-sounds/*.mp3 "$bundle/Contents/Resources/"
 codesign --force --deep -s - "$bundle"
 rm -rf "$app"
 mv "$bundle" "$app"

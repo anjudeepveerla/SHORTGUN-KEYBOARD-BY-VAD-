@@ -15,5 +15,7 @@
     <PackageReference Include="NAudio" Version="3.1.0" />
     <EmbeddedResource Include="../generated-sounds/*.wav"
                       LogicalName="ShotgunKeyboard.Sounds.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../bundled-sounds/*.mp3"
+                      LogicalName="ShotgunKeyboard.Sounds.%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>
